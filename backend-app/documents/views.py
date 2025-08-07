@@ -48,18 +48,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(out, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=["get"])
-    def status(self, request, pk=None):
-        uc = GetZapSignStatus(repo=DocumentRepoORM())
-        try:
-            out = uc.execute(int(pk))
-        except NotFoundError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
-        except ValidationError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(out, status=status.HTTP_200_OK) 
-  
+ 
     
     @action(detail=True, methods=["post"])
     def analysis(self, request, pk=None):
@@ -105,6 +94,19 @@ class DocumentViewSet(viewsets.ModelViewSet):
             DocumentContentSerializer(body).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
         )
+
+    @action(detail=True, methods=["post"])
+    def send_to_zapsign(self, request, pk=None):
+        pdf_url = request.data.get("pdf_url")
+        markdown = request.data.get("markdown_text")
+        uc = SendToZapSign(repo=DocumentRepoORM()) 
+        try:
+            doc = uc.execute(int(pk), pdf_url=pdf_url, markdown_text=markdown)
+        except NotFoundError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except ValidationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(self.get_serializer(doc).data, status=status.HTTP_200_OK)
 
 
 class SignerViewSet(viewsets.ModelViewSet):
