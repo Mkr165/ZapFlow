@@ -1,0 +1,8 @@
+.token {
+  max-width: 380px;           /* igual ou menor que flex acima            */
+  display:inline-block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  cursor: pointer;
+}

@@ -1,0 +1,150 @@
+<mat-card class="mb">
+  <div class="row">
+    <h2>{{ id ? "Editar documento" : "Novo documento" }}</h2>
+    <span class="spacer"></span>
+    <button mat-button (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon> Voltar
+    </button>
+  </div>
+</mat-card>
+
+<mat-card class="mb" [formGroup]="form">
+  <h3>Dados do documento</h3>
+
+  <div class="grid">
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Empresa</mat-label>
+      <mat-select formControlName="company" required>
+        <mat-option *ngFor="let c of companies" [value]="c.id">{{
+          c.name
+        }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('company')?.invalid"
+        >Selecione a empresa</mat-error
+      >
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" required />
+      <mat-error *ngIf="form.get('name')?.invalid">Informe o nome</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Criado por</mat-label>
+      <input matInput formControlName="created_by" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>External ID</mat-label>
+      <input matInput formControlName="external_id" />
+    </mat-form-field>
+  </div>
+
+  <h3>Signatários</h3>
+  <div formArrayName="signers">
+    <div
+      class="signer-row"
+      *ngFor="let s of signers.controls; let i = index"
+      [formGroupName]="i"
+    >
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="name" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" required />
+      </mat-form-field>
+
+      <button
+        mat-icon-button
+        color="warn"
+        (click)="removeSigner(i)"
+        *ngIf="signers.length > 1"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <button
+    mat-stroked-button
+    color="primary"
+    type="button"
+    (click)="addSigner()"
+  >
+    <mat-icon>person_add</mat-icon> Adicionar signatário
+  </button>
+</mat-card>
+
+<mat-card class="mb" [formGroup]="content">
+  <h3>Conteúdo do documento</h3>
+
+  <mat-button-toggle-group
+    formControlName="content_type"
+    aria-label="Tipo de conteúdo"
+  >
+    <mat-button-toggle value="markdown">Markdown</mat-button-toggle>
+    <mat-button-toggle value="url_pdf">URL de PDF</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <ng-container [ngSwitch]="content.get('content_type')?.value">
+    <mat-form-field
+      *ngSwitchCase="'markdown'"
+      appearance="outline"
+      class="fullw"
+    >
+      <mat-label>Markdown</mat-label>
+      <textarea
+        matInput
+        rows="12"
+        formControlName="markdown_text"
+        placeholder="# Título..."
+      ></textarea>
+    </mat-form-field>
+
+    <mat-form-field
+      *ngSwitchCase="'url_pdf'"
+      appearance="outline"
+      class="fullw"
+    >
+      <mat-label>URL do PDF</mat-label>
+      <input
+        matInput
+        formControlName="pdf_url"
+        placeholder="https://.../arquivo.pdf"
+      />
+    </mat-form-field>
+  </ng-container>
+</mat-card>
+
+<div class="actions">
+  <button mat-raised-button color="primary" (click)="save()">
+    <mat-icon>save</mat-icon> Salvar
+  </button>
+
+  <button
+    mat-stroked-button
+    color="primary"
+    (click)="sendNow()"
+    [disabled]="!id || (doc && doc.status !== 'draft')"
+  >
+    <mat-icon>send</mat-icon> Enviar para ZapSign
+  </button>
+
+  <button mat-button (click)="analyzeNow()" [disabled]="!id">
+    <mat-icon>analytics</mat-icon> Analisar
+  </button>
+
+  <button mat-button (click)="cancel()">Cancelar</button>
+</div>
+
+<div class="center overlay" *ngIf="saving || loading">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
+<div class="center overlay" *ngIf="saving || loading">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>

@@ -1,0 +1,47 @@
+<mat-card class="mb">
+  <div style="display:flex; align-items:center; gap:12px;">
+    <h2>Empresas</h2>
+    <span class="spacer"></span>
+    <button mat-raised-button color="primary" (click)="newCompany()">
+      <mat-icon>add_business</mat-icon> Nova empresa
+    </button>
+  </div>
+</mat-card>
+
+<mat-card>
+  <table mat-table [dataSource]="data" class="mat-elevation-z2 fullw">
+
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>#</th>
+      <td mat-cell *matCellDef="let r">{{ r.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Nome</th>
+      <td mat-cell *matCellDef="let r">{{ r.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="api_token">
+      <th mat-header-cell *matHeaderCellDef>API Token</th>
+      <td mat-cell *matCellDef="let r">
+        <span class="token" (click)="copy(r.api_token)">
+          {{ r.api_token }}
+        </span>
+      </td>
+    </ng-container>
+
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Ações</th>
+      <td mat-cell *matCellDef="let r">
+        <button mat-button color="primary" (click)="edit(r)"><mat-icon>edit</mat-icon> Editar</button>
+        <button mat-button color="warn" (click)="remove(r)"><mat-icon>delete</mat-icon> Excluir</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="cols"></tr>
+    <tr mat-row *matRowDef="let row; columns: cols;"></tr>
+  </table>
+
+  <mat-paginator [pageSize]="10"></mat-paginator>
+</mat-card>

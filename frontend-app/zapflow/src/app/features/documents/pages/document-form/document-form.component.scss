@@ -1,0 +1,10 @@
+.mb { margin-bottom: 16px; }
+.row { display: flex; align-items: center; gap: 12px; }
+.spacer { flex: 1 1 auto; }
+.grid { display: grid; grid-template-columns: 220px 1fr 1fr 1fr; gap: 12px; }
+.wide { width: 100%; }
+.fullw { width: 100%; }
+.signer-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center; }
+.actions { display: flex; gap: 12px; margin-bottom: 24px; }
+.center { display: flex; justify-content: center; margin-top: 12px; }
+.overlay { position: fixed; inset: 0; background: rgba(255,255,255,.35); z-index: 1000; align-items: center; }

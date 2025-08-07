@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>Análise do documento</h2>
+<mat-dialog-content>
+  <p *ngIf="data?.summary">{{ data.summary }}</p>
+
+  <div *ngIf="data?.risk_score !== undefined" style="margin: 8px 0;">
+    <strong>Risco:</strong> {{ data.risk_score }}/100
+  </div>
+
+  <div *ngIf="data?.topics?.length">
+    <strong>Tópicos:</strong>
+    <mat-chip-list>
+      <mat-chip *ngFor="let t of data.topics" selected>{{ t }}</mat-chip>
+    </mat-chip-list>
+  </div>
+
+  <div *ngIf="data?.flags?.length">
+    <strong>Flags:</strong>
+    <ul>
+      <li *ngFor="let f of data.flags">{{ f }}</li>
+    </ul>
+  </div>
+
+  <pre *ngIf="data?.extracted" style="white-space: pre-wrap; background:#f7f7f7; padding:8px; border-radius:6px;">
+{{ data.extracted | json }}
+  </pre>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Fechar</button>
+</mat-dialog-actions>
