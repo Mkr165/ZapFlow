@@ -1,0 +1,21 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      - TZ=America/Sao_Paulo
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      # URL pública (se for expor/ou usar webhooks). Local: pode deixar assim:
+      - WEBHOOK_URL=http://localhost:5678/
+      # Protege a interface
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      # Criptografia de credenciais
+      #- N8N_ENCRYPTION_KEY=
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    restart: unless-stopped
