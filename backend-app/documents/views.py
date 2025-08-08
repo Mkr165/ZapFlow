@@ -97,11 +97,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def send_to_zapsign(self, request, pk=None):
-        pdf_url = request.data.get("pdf_url")
-        markdown = request.data.get("markdown_text")
+        #pdf_url = request.data.get("pdf_url")
+        #markdown = request.data.get("markdown_text")
         uc = SendToZapSign(repo=DocumentRepoORM()) 
         try:
-            doc = uc.execute(int(pk), pdf_url=pdf_url, markdown_text=markdown)
+            #doc = uc.execute(int(pk), pdf_url=pdf_url, markdown_text=markdown)
+            doc = uc.execute(int(pk))
         except NotFoundError as e:
             return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
         except ValidationError as e:

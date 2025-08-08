@@ -15,7 +15,8 @@ class AnalyzeDocument:
                 raise ValidationError("Documento sem conteúdo definido.")
             if content.content_type == "markdown":
                 text = content.markdown_text or ""
-            else:                           # url_pdf
+            else: 
+                print('verificando pdf url',content.pdf_url)                          # url_pdf
                 text = pdf_url_to_text(content.pdf_url)
 
         if len(text.strip()) < 30:

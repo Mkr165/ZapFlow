@@ -25,8 +25,8 @@ def _real_create_document(api_token: str, payload: dict) -> dict:
         _raise(r)
     return r.json()
 
-def _real_get_status(api_token: str, open_id: int) -> dict:
-    r = requests.get(f"{BASE}/docs/{open_id}/",
+def _real_get_status(api_token: str, token: str) -> dict:
+    r = requests.get(f"{BASE}/docs/{token}/",
                      headers={"Authorization": f"Bearer {api_token}"}, timeout=TIMEOUT)
     if r.status_code >= 400:
         _raise(r)

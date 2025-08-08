@@ -22,7 +22,7 @@ class SignerSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = Signer 
-        fields = ["id", "name", "email", "external_id","links"]
+        fields = ["id", "name", "email", "external_id","status","links"]
         extra_kwargs = {
             "id": {"read_only": True},
         }
@@ -100,3 +100,19 @@ class DocumentContentSerializer(serializers.ModelSerializer):
         return {
             "document": reverse("document-detail", args=[obj.document_id], request=req),
         }
+
+class AutomationCreateSendSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    created_by = serializers.CharField(required=False, allow_blank=True)
+    signers = serializers.ListSerializer(child=serializers.DictField(), allow_empty=False)
+    content_type = serializers.ChoiceField(choices=["markdown", "url_pdf"])
+    markdown_text = serializers.CharField(required=False, allow_blank=True)
+    pdf_url = serializers.URLField(required=False, allow_blank=True)
+
+    def validate(self, data):
+        ct = data["content_type"]
+        if ct == "markdown" and not data.get("markdown_text"):
+            raise serializers.ValidationError("markdown_text é obrigatório quando content_type=markdown.")
+        if ct == "url_pdf" and not data.get("pdf_url"):
+            raise serializers.ValidationError("pdf_url é obrigatório quando content_type=url_pdf.")
+        return data

@@ -1,4 +1,4 @@
-from documents.models import Company, Document, Signer
+from documents.models import Company, Document, DocumentContent, Signer
 from documents.usecases.errors import NotFoundError
 
 class DocumentRepoORM:
@@ -35,3 +35,55 @@ class DocumentRepoORM:
             setattr(doc, k, v)
         doc.save(update_fields=list(fields.keys()))
         return doc
+    
+    def update_signer_token_by_email(self, document_id: int, email: str, token: str):
+        try:
+            signer = Signer.objects.get(document_id=document_id, email__iexact=email)
+            signer.token = token
+            signer.save()
+        except Signer.DoesNotExist:
+            print(f"Signer com email {email} não encontrado para o documento {document_id}")
+    
+    def update_signer_status_token_by_email(self, document_id: int, email: str, status=None, token=None):
+        from documents.models import Signer
+        s = Signer.objects.filter(
+            document_id=document_id,
+            email__iexact=email
+        ).first()
+        if not s:
+            return
+        fields = []
+        if status:
+            s.status = status
+            fields.append("status")
+        if token:
+            s.token = token
+            fields.append("token")
+        if fields:
+            s.save(update_fields=fields)
+
+
+    def upsert_document_content(
+        self,
+        document_id: int,
+        content_type: str,
+        *,
+        markdown_text: str = "",
+        pdf_url: str = "",
+    ):
+        # pega a instância do Document 
+        doc = Document.objects.get(id=document_id)
+
+        # OneToOne: cria ou atualiza o conteúdo
+        content, _ = DocumentContent.objects.get_or_create(document=doc)
+
+        content.content_type = content_type
+        if content_type == "markdown":
+            content.markdown_text = markdown_text or ""
+            content.pdf_url = ""
+        else:  # "url_pdf"
+            content.pdf_url = pdf_url or ""
+            content.markdown_text = ""
+
+        content.save(update_fields=["content_type", "markdown_text", "pdf_url"])
+        return content
