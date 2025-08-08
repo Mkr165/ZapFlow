@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from .models import Company, Document, Signer, DocumentContent
 from django.db import transaction
+from django.db.models import Count
 class CompanySerializer(serializers.ModelSerializer):
     links = serializers.SerializerMethodField()
 
@@ -115,4 +116,31 @@ class AutomationCreateSendSerializer(serializers.Serializer):
             raise serializers.ValidationError("markdown_text é obrigatório quando content_type=markdown.")
         if ct == "url_pdf" and not data.get("pdf_url"):
             raise serializers.ValidationError("pdf_url é obrigatório quando content_type=url_pdf.")
+        return data
+    
+ 
+class ReportDocumentSerializer(serializers.ModelSerializer):
+    signer_count = serializers.IntegerField(read_only=True)
+    signers = SignerSerializer(many=True, required=False)
+    class Meta:
+        model = Document
+        fields = ("id", "name", "status", "created_at", "last_updated_at", "signer_count","signers")
+
+
+# análise via automação
+class AutomationAnalysisInputSerializer(serializers.Serializer):
+    # Se enviar "text", analisamos esse texto; se não enviar, usamos o conteúdo salvo (markdown/url_pdf)
+    text = serializers.CharField(required=False, allow_blank=True)
+
+class AutomationReportFilterSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=["draft","sent","signed","canceled", "pending"], required=False
+    )
+    date_from = serializers.DateField(required=False)
+    date_to = serializers.DateField(required=False)
+
+    def validate(self, data):
+        df, dt = data.get("date_from"), data.get("date_to")
+        if df and dt and df > dt:
+            raise serializers.ValidationError("date_from não pode ser maior que date_to.")
         return data

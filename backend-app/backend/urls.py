@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health),
     path("api/", include("documents.urls")),
-
+    path("automations/", include("documents.urls")),
     # OpenAPI JSON
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # Swagger UI

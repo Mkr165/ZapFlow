@@ -1,0 +1,18 @@
+# Pasta de dados do n8n (credenciais, banco, logs)
+n8n_data/
+n8n/
+
+# Arquivos sensíveis e temporários
+*.log
+*.journal
+
+# Banco SQLite do n8n
+database.sqlite
+
+# Docker
+docker-compose.override.yml
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -21,4 +21,4 @@ class ApiKeyAuthentication(BaseAuthentication):
         if not company:
             raise exceptions.AuthenticationFailed("API key inválida.")
         request.company = company
-        return (ApiKeyUser(company), None)  # <- tem is_authenticated
+        return (ApiKeyUser(company), None)  
