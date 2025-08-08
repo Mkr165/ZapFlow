@@ -1,12 +1,7 @@
+import uuid
 from .errors import ValidationError
 
 class CreateDocument:
-    """
-    Regras para criar Documento (de acordo com o diagrama):
-    - company (ID), name e pelo menos 1 signer são obrigatórios
-    - status/open_id/token NÃO vêm na criação (defaults do model)
-    - normaliza e valida signers
-    """
     def __init__(self, repo):
         self.repo = repo
 
@@ -23,7 +18,6 @@ class CreateDocument:
         if not isinstance(raw_signers, list) or not raw_signers:
             raise ValidationError("Pelo menos um signatário é obrigatório.")
 
-        # normaliza signers
         signers = []
         seen_emails = set()
         for s in raw_signers:
@@ -37,14 +31,15 @@ class CreateDocument:
             signers.append({
                 "name": n,
                 "email": e,
-                "external_id": (s.get("external_id") or "").strip(),
+                "external_id": (s.get("external_id") or str(uuid.uuid4())).strip(),
             })
 
         payload = {
             "company": company_id,
             "name": name,
             "created_by": (data.get("created_by") or "").strip(),
-            "external_id": (data.get("external_id") or "").strip(),
+            "external_id": (data.get("external_id") or str(uuid.uuid4())).strip(),
             "signers": signers,
         }
+
         return self.repo.create_document_with_signers(payload)
