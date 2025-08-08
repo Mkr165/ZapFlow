@@ -12,7 +12,7 @@ class SendToZapSign:
         if not doc.company.api_token:
             raise ValidationError("Empresa sem api_token configurado.")
 
-        signers = [{"name": s.name, "email": s.email} for s in doc.signers.all()]
+        signers = [{'sandbox': True, "name": s.name, "email": s.email, "send_automatic_email": True} for s in doc.signers.all()]
         if not signers:
             raise ValidationError("Documento sem signatários.")
 
@@ -29,8 +29,22 @@ class SendToZapSign:
 
         payload = {"name": doc.name, "signers": signers, **chosen}
         data = zs_create(doc.company.api_token, payload)
-
+        print('data return   ', data)
         open_id = data.get("open_id") or data.get("id")
         token   = data.get("token") or ""
         status  = data.get("status") or "sent"
-        return self.repo.save_document_fields(doc, open_id=open_id, token=token, status=status)
+
+        self.repo.save_document_fields(doc, open_id=open_id, token=token, status=status)
+
+        # Atualiza cada signer (caso a API tenha retornado tokens individuais)
+        signers_data = data.get("signers", [])
+        if signers_data:
+            for s_data in signers_data:
+                email = s_data.get("email")
+                signer_token = s_data.get("token")
+                if not (email and signer_token):
+                    continue
+                # Atualiza o signer com base no email
+                self.repo.update_signer_token_by_email(doc.id, email, signer_token)
+
+        return doc
