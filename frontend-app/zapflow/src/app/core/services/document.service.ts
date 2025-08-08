@@ -49,6 +49,6 @@ export class DocumentService {
   }
 
   analyze(id: number, text: string) {
-    return this.http.post(`${this.base}/documents/${id}/analysis/`, { text });
+    return this.http.post(`${this.base}/documents/${id}/analysis/`, {});
   }
 }

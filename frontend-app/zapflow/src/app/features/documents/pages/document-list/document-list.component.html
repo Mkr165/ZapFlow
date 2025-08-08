@@ -38,9 +38,25 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="signers">
+      <th mat-header-cell *matHeaderCellDef>Signatários</th>
+      <td mat-cell *matCellDef="let d" class="signers-cell" style="max-width: 500px;">
+        <mat-chip-list class="signers-list">
+          <mat-chip
+            *ngFor="let s of d.signers"
+            [selectable]="false"
+            [removable]="false"
+            class="signer-chip"
+          >
+            {{ s.name }} • {{ s.email }} • {{ s.status }}
+          </mat-chip>
+        </mat-chip-list>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Ações</th>
-      <td mat-cell *matCellDef="let d">
+      <td mat-cell *matCellDef="let d" >
         <button
           mat-stroked-button
           color="primary"

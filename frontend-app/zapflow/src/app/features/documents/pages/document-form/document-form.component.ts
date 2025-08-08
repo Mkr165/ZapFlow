@@ -93,7 +93,7 @@ export class DocumentFormComponent implements OnInit {
       const c = this.content.value as DocumentContent;
       const isMarkdown = c.content_type === 'markdown' && !!c.markdown_text?.trim();
       const isUrl = c.content_type === 'url_pdf' && !!c.pdf_url?.trim();
-
+      console.log(isMarkdown, isUrl)
       if (isMarkdown || isUrl) {
         this.api.setContent(docId, c).subscribe({
           next: _ => this.snack.open('Conteúdo salvo!', 'OK', { duration: 1600 }),
@@ -154,8 +154,10 @@ export class DocumentFormComponent implements OnInit {
     // texto para análise: usa markdown se houver, senão o nome
     const c = this.content.value as DocumentContent;
     const text = (c.content_type === 'markdown' ? (c.markdown_text || '') : (this.form.value.name || '')) as string;
+    const pdf = (c.content_type === 'url_pdf'? (c.pdf_url || '') : (this.form.value.name || '')) as string;
+    const finalcontent = pdf ? pdf : text;
     this.loading = true;
-    this.api.analyze(this.id!, text).subscribe({
+    this.api.analyze(this.id!, finalcontent).subscribe({
       next: (res) => this.dialog.open(AnalysisDialogComponent, { data: res, width: '640px' }),
       complete: () => this.loading = false,
       error: () =>{

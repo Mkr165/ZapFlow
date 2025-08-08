@@ -2,6 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
+   {
+    path: '',
+    loadChildren: () =>
+      import('./features/documents/documents.module').then(
+        (m) => m.DocumentsModule
+      ),
+  },
   {
     path: 'documents',
     loadChildren: () =>
@@ -9,7 +16,13 @@ const routes: Routes = [
         (m) => m.DocumentsModule
       ),
   },
-  { path: 'companies', loadChildren: () => import('./features/companies/companies.module').then(m => m.CompaniesModule) },
+  {
+    path: 'companies',
+    loadChildren: () =>
+      import('./features/companies/companies.module').then(
+        (m) => m.CompaniesModule
+      ),
+  },
 ];
 
 @NgModule({

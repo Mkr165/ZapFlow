@@ -3,7 +3,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CompanyService } from '../../../../core/services/company.service';
-import { Company } from '../../../../core/types/company.types';
+import { Company } from '@core/types/company.types';
+
 
 @Component({
   selector: 'app-company-form',

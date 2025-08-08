@@ -12,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './document-list.component.html',
 })
 export class DocumentListComponent implements OnInit {
-  cols = ['id', 'name', 'status', 'actions'];
+  cols = ['id', 'name', 'status', 'signers', 'actions'];
   data = new MatTableDataSource<Document>([]);
   loading = false;
 
@@ -53,7 +53,7 @@ export class DocumentListComponent implements OnInit {
     this.api.sendToZapSign(d.id!).subscribe(() => this.fetch());
   }
   status(d: Document) {
-    this.api.getStatus(d.id!).subscribe(console.log);
+    this.api.getStatus(d.id!).subscribe(()=>this.fetch());
   }
   analyze(d: Document) {
     this.api.analyze(d.id!, d.name).subscribe(console.log);
