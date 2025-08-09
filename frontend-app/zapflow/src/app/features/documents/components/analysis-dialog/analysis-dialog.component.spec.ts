@@ -1,25 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AnalysisDialogComponent } from './analysis-dialog.component';
+import { MaterialModule } from 'src/app/shared/material/material.module';
 
 describe('AnalysisDialogComponent', () => {
-  let component: AnalysisDialogComponent;
-  let fixture: ComponentFixture<AnalysisDialogComponent>;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AnalysisDialogComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AnalysisDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+      declarations: [AnalysisDialogComponent],
+      providers: [
+        { provide: MAT_DIALOG_DATA, useValue: { any: 'data' } },
+        { provide: MatDialogRef, useValue: { close: jest.fn() } },
+      ],
+      imports:[ MaterialModule,]
+    }).compileComponents();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    const fixture = TestBed.createComponent(AnalysisDialogComponent);
+    const comp = fixture.componentInstance;
+    expect(comp).toBeTruthy();
   });
 });

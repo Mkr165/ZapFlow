@@ -1,6 +1,11 @@
+import { Router } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CompanyListComponent } from './company-list.component';
+import { HttpClient } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { MaterialModule } from 'src/app/shared/material/material.module';
 
 describe('CompanyListComponent', () => {
   let component: CompanyListComponent;
@@ -8,9 +13,10 @@ describe('CompanyListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CompanyListComponent ]
-    })
-    .compileComponents();
+      declarations: [CompanyListComponent],
+      providers: [],
+      imports: [HttpClientTestingModule, MaterialModule, RouterTestingModule],
+    }).compileComponents();
   });
 
   beforeEach(() => {
