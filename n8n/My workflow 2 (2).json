@@ -1,0 +1,394 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "receber_lead",
+        "options": {}
+      },
+      "name": "Webhook Receber Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        260
+      ],
+      "id": "6ba00266-729b-4fd9-859e-b6a1330c7c20",
+      "webhookId": "83ffa226-f3a8-487c-8ebd-8e4e725eccca"
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "name": "Agendador Checagem Status",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        620
+      ],
+      "id": "fef1e1a4-2b77-436f-a769-de188f0cece6"
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "url": "http://host.docker.internal:8000/api/automations/reports/documents/?status=pending",
+        "options": {}
+      },
+      "name": "Listar Pendentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        120,
+        620
+      ],
+      "id": "85077bbd-8149-47ed-8c96-91b7f64dbad2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jGmvbn5OpJ3hmXuW",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "url": "http://host.docker.internal:8000/api/automations/create_send/",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "name",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "name": "created_by",
+              "value": "={{ $json.body.created_by }}"
+            },
+            {
+              "name": "signers",
+              "value": "={{ $json.body.signers }}"
+            },
+            {
+              "name": "=content_type",
+              "value": "={{ $json.body.content_type }}"
+            },
+            {
+              "name": "markdown_text",
+              "value": "={{ $json.body.markdown_text }}"
+            },
+            {
+              "name": "pdf_url",
+              "value": "={{ $json.body.url_pdf }}"
+            }
+          ]
+        },
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "17ea2c2b-5c1e-4b8c-bfb9-69d4c6be58c2",
+      "name": "Create & Send Document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jGmvbn5OpJ3hmXuW",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "url": "=http://host.docker.internal:8000/api/automations/analysis/{{ $json.document_id }}/",
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "fe54d7be-e432-4910-a09c-1d536678c8d1",
+      "name": "Analyze Document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        340,
+        260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jGmvbn5OpJ3hmXuW",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "url": "http://host.docker.internal:8000/api/automations/reports/documents/",
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Authorization",
+              "value": "Api-Key SEU_API_TOKEN_AQUI"
+            }
+          ]
+        }
+      },
+      "id": "7548cd08-613e-42ae-870a-b60f9d75e080",
+      "name": "Get Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        560,
+        260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jGmvbn5OpJ3hmXuW",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "dfc9f330-3e7d-4e62-aa7e-c59c0567661a",
+              "leftValue": "={{ $json.age_hours }}",
+              "rightValue": 24,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e71ffb42-20dd-4025-83e4-285ab9a94329",
+      "name": "Parado há >=24h?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        720,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// O HTTP pode retornar um array [ { summary, items: [...] } ] ou já um objeto.\n// Normaliza e devolve cada documento como 1 item do n8n.\nconst root = Array.isArray($json) ? $json[0] : $json;\nconst items = (root && root.items) ? root.items : [];\nreturn items.map(d => ({ json: d }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        620
+      ],
+      "id": "5e69420b-5117-44ba-a48e-d54fa241bb30",
+      "name": "Explode"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn items.map(item => {\n  const last = new Date(item.json.last_updated_at || item.json.created_at);\n  const now = new Date();\n  const age_hours = Math.floor((now - last) / 3600000);\n  return { json: { ...item.json, age_hours } };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        620
+      ],
+      "id": "f0f788ba-0728-4b1e-94e1-79fb54ae4016",
+      "name": "calcula idade"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://send.api.mailtrap.io/api/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 8dc401e902ca96fdebd200ec213fe5c4"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"from\":{\"email\":\"hello@demomailtrap.co\",\"name\":\"Mailtrap Test\"},\"to\":[{\"email\":\"samuelr.neto98@gmail.com\"}],\"subject\":\"You are awesome!\",\"text\":\"{{ $json.message }}\",\"category\":\"Integration Test\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        480
+      ],
+      "id": "1bec4b76-6781-4151-9e78-df9cb1f73ae0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const data = item.json;\n  const msg = `🚨 Documento parado ID: ${data.id} — ${data.name} X Status: ${data.status} (${ data.age_hours }h) X Signatários: ${data.signer_count} Atualizado em: ${data.last_updated_at} Abrir: http://localhost:4200/documents/${data.id}/edit`;\n  \n  return { json: { ...data, message: msg } };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        480
+      ],
+      "id": "01f24b2c-c7d4-4363-98e1-25c14aaad60e",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Receber Lead": {
+      "main": [
+        [
+          {
+            "node": "Create & Send Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agendador Checagem Status": {
+      "main": [
+        [
+          {
+            "node": "Listar Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create & Send Document": {
+      "main": [
+        [
+          {
+            "node": "Analyze Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Document": {
+      "main": [
+        [
+          {
+            "node": "Get Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listar Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Explode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parado há >=24h?": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Explode": {
+      "main": [
+        [
+          {
+            "node": "calcula idade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "calcula idade": {
+      "main": [
+        [
+          {
+            "node": "Parado há >=24h?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7320971c-0d1a-4e19-8203-066365ac46bb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "81a1fbb515bbdb616e6651b63e11037eb8e1882e590a47d616b0fca19134b1d4"
+  },
+  "id": "Y0Q4Y11zqFhN6h5y",
+  "tags": []
+}
