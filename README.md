@@ -1,4 +1,4 @@
-# ZapSign App — README (dev friendly)
+# ZapSign App
 
 ## 0) Pré-requisitos
 - Python 3.11+ (recomendado)  
@@ -245,5 +245,79 @@ curl -X POST http://127.0.0.1:8000/api/automations/analyze  -H "X-API-Key: SEU_T
   >>> d.save(update_fields=["status","open_id","token"])
   ```
 - **Mudei `.env` e nada mudou**: reinicie o `runserver`.
+
+---
+
+## 11) Setup do Frontend (Angular 12)
+
+1. Acesse a pasta do frontend:
+```bash
+cd ../frontend-app
+```
+
+2. Instale as dependências:
+```bash
+npm install
+```
+
+3. Crie/ajuste o arquivo de ambiente `src/environments/environment.ts` com a URL da API:
+```typescript
+export const environment = {
+  production: false,
+  apiBaseUrl: 'http://localhost:8000'
+};
+```
+
+4. Suba o servidor de desenvolvimento:
+```bash
+ng serve
+```
+
+O frontend estará acessível em:
+```
+http://localhost:4200
+```
+
+---
+
+## 12) Setup do n8n + Integração Mailtrap
+
+O fluxo JSON do n8n está disponível em:
+```
+/n8n/My workflow 2.json
+```
+
+Este fluxo cobre:
+- **Recebimento de leads via Webhook**
+- **Criação e envio automático de documentos para o backend**
+- **Análise de documentos**
+- **Monitoramento periódico (cada minuto) de documentos pendentes**
+- **Envio de alertas para e-mail via Mailtrap** caso um documento esteja parado por mais de 24h
+
+### Passos para configurar
+
+1. **Importar o fluxo**
+   - No painel do n8n → *Menu* → *Import* → *From File*
+   - Selecione o arquivo `.json` da pasta `/n8n`
+
+2. **Configurar credenciais**
+   - Crie uma credencial **HTTP Header Auth** no n8n com:
+     - Header: `X-API-Key`
+     - Valor: API Token da `Company` cadastrada no backend
+   - Substitua nas requisições do fluxo (Create & Send, Status, Analysis)
+
+3. **Configurar Mailtrap**
+   - Acesse [https://mailtrap.io/api-tokens](https://mailtrap.io/api-tokens)
+   - Copie o **API Token** (Bearer Token) e substitua no nó **HTTP Request** que envia o e-mail
+   - Ajuste o corpo JSON para refletir:
+     - `from.email` e `from.name`
+     - Lista `to` com e-mails de destino
+     - `subject`, `text` e `category` conforme desejado
+
+4. **Testar fluxo**
+   - Dispare manualmente via *Execute Workflow* ou aguarde o gatilho do agendador (`cron`).
+   - Verifique no Mailtrap a caixa de entrada para confirmar o recebimento.
+
+💡 O Mailtrap funciona como uma **caixa de e-mails fake segura** para ambientes de desenvolvimento e teste, permitindo validar conteúdo, formatação e dados sem enviar e-mails reais.
 
 ---
